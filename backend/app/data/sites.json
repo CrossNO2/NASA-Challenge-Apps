@@ -1,0 +1,46 @@
+[
+  {
+    "id": "shackleton-rim",
+    "name": "Shackleton Rim",
+    "lat": -89.9,
+    "lon": 0.0,
+    "elevation_m": 2100,
+    "slope_deg": 8.5,
+    "program": "Artemis III (benchmark)",
+    "horizon_profile_file": null,
+    "source": "Team research report (placeholder). To be replaced with official NASA Artemis III candidate regions (Oct 2024, 9 regions) + LOLA data."
+  },
+  {
+    "id": "malapert-massif",
+    "name": "Malapert Massif",
+    "lat": -86.0,
+    "lon": 2.7,
+    "elevation_m": 4850,
+    "slope_deg": 12.0,
+    "program": "Artemis III (benchmark)",
+    "horizon_profile_file": null,
+    "source": "Team research report (placeholder). To be replaced with official NASA Artemis III candidate regions (Oct 2024, 9 regions) + LOLA data."
+  },
+  {
+    "id": "nobile-rim-1",
+    "name": "Nobile Rim 1",
+    "lat": -85.2,
+    "lon": 53.5,
+    "elevation_m": 1650,
+    "slope_deg": 6.5,
+    "program": "Artemis III (benchmark)",
+    "horizon_profile_file": null,
+    "source": "Team research report (placeholder). To be replaced with official NASA Artemis III candidate regions (Oct 2024, 9 regions) + LOLA data."
+  },
+  {
+    "id": "apollo-11",
+    "name": "Apollo 11 (Tranquility Base)",
+    "lat": 0.67,
+    "lon": 23.47,
+    "elevation_m": -1900,
+    "slope_deg": 1.8,
+    "program": "Apollo (reference)",
+    "horizon_profile_file": null,
+    "source": "Team research report (placeholder). To be replaced/verified with LOLA data."
+  }
+]

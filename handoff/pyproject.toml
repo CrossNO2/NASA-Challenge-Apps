@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lunar-landing-sites"
+version = "1.0.0"
+description = "Standardized lunar landing-site aggregation, export, and coordinate processing service"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8.0,<9.0"]
+
+[project.scripts]
+lunar-sites = "lunar_sites.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["lunar_sites*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

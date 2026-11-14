@@ -1,0 +1,54 @@
+[
+  {
+    "site_id": "shackleton-rim",
+    "lat": -89.9,
+    "lon": 0.0,
+    "elev_m": 2100.0,
+    "time_utc": "2026-11-14T12:00:00Z",
+    "body": "sun",
+    "az_deg": 120.525991,
+    "el_deg": 1.505817,
+    "distance_au": 0.98796892134261,
+    "distance_km": 147798047.5,
+    "source": "NASA JPL Horizons API (DE441, CENTER=coord@301, QUANTITIES=4,20)"
+  },
+  {
+    "site_id": "shackleton-rim",
+    "lat": -89.9,
+    "lon": 0.0,
+    "elev_m": 2100.0,
+    "time_utc": "2026-11-14T12:00:00Z",
+    "body": "earth",
+    "az_deg": 358.077226,
+    "el_deg": -4.021794,
+    "distance_au": 0.00270988929033,
+    "distance_km": 405393.7,
+    "source": "NASA JPL Horizons API (DE441, CENTER=coord@301, QUANTITIES=4,20)"
+  },
+  {
+    "site_id": "apollo-11",
+    "lat": 0.67,
+    "lon": 23.47,
+    "elev_m": -1900.0,
+    "time_utc": "2026-11-14T12:00:00Z",
+    "body": "sun",
+    "az_deg": 91.486203,
+    "el_deg": -7.069599,
+    "distance_au": 0.98797065584948,
+    "distance_km": 147798307.0,
+    "source": "NASA JPL Horizons API (DE441, CENTER=coord@301, QUANTITIES=4,20)"
+  },
+  {
+    "site_id": "apollo-11",
+    "lat": 0.67,
+    "lon": 23.47,
+    "elev_m": -1900.0,
+    "time_utc": "2026-11-14T12:00:00Z",
+    "body": "earth",
+    "az_deg": 277.596628,
+    "el_deg": 64.322524,
+    "distance_au": 0.00269863960585,
+    "distance_km": 403710.7,
+    "source": "NASA JPL Horizons API (DE441, CENTER=coord@301, QUANTITIES=4,20)"
+  }
+]
