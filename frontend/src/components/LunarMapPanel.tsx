@@ -3,7 +3,6 @@ import React, { useRef, useState } from 'react';
 import {
   Crosshair,
   ExternalLink,
-  Globe,
   Layers,
   Search,
 } from 'lucide-react';
@@ -130,15 +129,15 @@ export const LunarMapPanel: React.FC<LunarMapPanelProps> = ({
   const getMarkerColor = (type: UnifiedLunarSite['site_type']) => {
     switch (type) {
       case 'artemis-candidate':
-        return '#F59E0B';
+        return '#FF4F00';
       case 'crewed':
-        return '#10B981';
+        return '#15803D';
       case 'robotic':
-        return '#0EA5E9';
+        return '#0284C7';
       case 'custom':
-        return '#EF4444';
+        return '#DC2626';
       default:
-        return '#F8FAFC';
+        return '#D97706';
     }
   };
 
@@ -147,350 +146,369 @@ export const LunarMapPanel: React.FC<LunarMapPanelProps> = ({
   const selectedPt = projectToSvg(selectedSite.lat, selectedSite.lon);
 
   return (
-    <section
-      style={{ backgroundColor: '#0F141F', border: '1px solid rgba(255,255,255,0.08)' }}
-      className="rounded-lg p-4 flex flex-col gap-4"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+    <section className="nasa-panel flex flex-col justify-between h-full">
+      {/* Top Industrial Titanium Module Header */}
+      <div className="px-3.5 py-2.5 bg-[#EAE7E0] border-b border-[#CFCBC2] flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Globe className="w-4 h-4 text-[#0EA5E9]" />
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200 m-0">
-            2D Selenographic Map &amp; Curated Landing Sites ({sites.length} Total)
-          </h2>
+          <span className="px-1.5 py-0.5 bg-[#141413] text-[#FF4F00] font-mono text-[10px] font-bold tracking-wider">
+            MOD-02
+          </span>
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#141413] m-0">
+              2D SELENOGRAPHIC MAP &amp; CATALOG ({sites.length})
+            </h2>
+            <p className="text-[10px] font-mono text-[#57534E] m-0">
+              EQUIRECTANGULAR [-180°..+180°] · CLICK MAP TO TARGET
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => setShowTiles((v) => !v)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium bg-[#080B11] text-slate-300 border border-white/[0.08] hover:border-[#0EA5E9]/50 transition cursor-pointer"
+            className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono font-semibold bg-[#F4F3EF] text-[#141413] border border-[#CFCBC2] hover:border-[#FF4F00] transition cursor-pointer"
           >
-            <Layers className="w-3.5 h-3.5 text-[#0EA5E9]" />
-            {showTiles && !tileError ? 'NASA Moon Trek Tiles: ON' : 'Vector Graticule Only'}
+            <Layers className="w-3 h-3 text-[#FF4F00]" />
+            {showTiles && !tileError ? 'WAC TILES: ON' : 'GRATICULE ONLY'}
           </button>
 
           <a
             href={lrocQuickMapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium bg-[#080B11] text-[#0EA5E9] border border-[#0EA5E9]/30 hover:bg-[#0EA5E9]/10 transition no-underline"
+            className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono font-semibold bg-[#F4F3EF] text-[#0284C7] border border-[#CFCBC2] hover:border-[#0284C7] transition no-underline"
           >
-            <span>LROC QuickMap</span>
-            <ExternalLink className="w-3 h-3" />
+            <span>LROC</span>
+            <ExternalLink className="w-2.5 h-2.5" />
           </a>
 
           <a
             href={moonTrekUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium bg-[#080B11] text-[#10B981] border border-[#10B981]/30 hover:bg-[#10B981]/10 transition no-underline"
+            className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono font-semibold bg-[#F4F3EF] text-[#15803D] border border-[#CFCBC2] hover:border-[#15803D] transition no-underline"
           >
-            <span>NASA Moon Trek</span>
-            <ExternalLink className="w-3 h-3" />
+            <span>MOON TREK</span>
+            <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>
       </div>
 
-      <div
-        style={{ backgroundColor: '#080B11', border: '1px solid rgba(255,255,255,0.08)' }}
-        className="relative w-full aspect-[2/1] rounded overflow-hidden select-none"
-      >
-        {showTiles && !tileError && (
-          <div className="absolute inset-0 grid grid-cols-2 pointer-events-none opacity-65">
-            <img
-              src="https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/0/0/0.jpg"
-              alt="NASA Moon Trek West Hemisphere"
-              className="w-full h-full object-cover grayscale contrast-125"
-              onError={() => setTileError(true)}
-            />
-            <img
-              src="https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/0/0/1.jpg"
-              alt="NASA Moon Trek East Hemisphere"
-              className="w-full h-full object-cover grayscale contrast-125"
-              onError={() => setTileError(true)}
-            />
-          </div>
-        )}
+      <div className="p-3 flex flex-col gap-2.5 flex-1 justify-between">
+        {/* 2D Selenographic Map Viewport */}
+        <div className="relative w-full aspect-[2/1] bg-[#141413] border border-[#CFCBC2] overflow-hidden select-none">
+          {showTiles && !tileError && (
+            <div className="absolute inset-0 grid grid-cols-2 pointer-events-none opacity-65">
+              <img
+                src="https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/0/0/0.jpg"
+                alt="NASA Moon Trek West Hemisphere"
+                className="w-full h-full object-cover grayscale contrast-125"
+                onError={() => setTileError(true)}
+              />
+              <img
+                src="https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/0/0/1.jpg"
+                alt="NASA Moon Trek East Hemisphere"
+                className="w-full h-full object-cover grayscale contrast-125"
+                onError={() => setTileError(true)}
+              />
+            </div>
+          )}
 
-        <svg
-          viewBox="0 0 720 360"
-          className="relative z-10 w-full h-full cursor-crosshair block"
-          onClick={handleMapSvgClick}
-        >
-          <rect x="0" y="0" width="180" height="360" fill="#080B11" fillOpacity="0.42" />
-          <rect x="540" y="0" width="180" height="360" fill="#080B11" fillOpacity="0.42" />
+          <svg
+            viewBox="0 0 720 360"
+            className="relative z-10 w-full h-full cursor-crosshair block"
+            onClick={handleMapSvgClick}
+          >
+            {/* Far-Side Limb Shading */}
+            <rect x="0" y="0" width="180" height="360" fill="#0B0C0E" fillOpacity="0.45" />
+            <rect x="540" y="0" width="180" height="360" fill="#0B0C0E" fillOpacity="0.45" />
 
-          {[-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lon) => {
-            const x = ((lon + 180) / 360) * 720;
-            const isLimbOrPrime = lon === 0 || Math.abs(lon) === 90;
-            return (
-              <g key={`lon-${lon}`}>
-                <line
-                  x1={x}
-                  y1={0}
-                  x2={x}
-                  y2={360}
-                  stroke={isLimbOrPrime ? 'rgba(14,165,233,0.28)' : 'rgba(255,255,255,0.07)'}
-                  strokeWidth={isLimbOrPrime ? 1 : 0.6}
-                  strokeDasharray={Math.abs(lon) === 90 ? '3 3' : undefined}
-                />
-                <text x={x + 3} y={12} fill="rgba(148,163,184,0.65)" fontSize="8" fontFamily="monospace">
-                  {lon > 0 ? `+${lon}°E` : `${lon}°`}
-                </text>
-              </g>
-            );
-          })}
+            {[-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lon) => {
+              const x = ((lon + 180) / 360) * 720;
+              const isLimbOrPrime = lon === 0 || Math.abs(lon) === 90;
+              return (
+                <g key={`lon-${lon}`}>
+                  <line
+                    x1={x}
+                    y1={0}
+                    x2={x}
+                    y2={360}
+                    stroke={isLimbOrPrime ? 'rgba(255,79,0,0.42)' : 'rgba(255,255,255,0.12)'}
+                    strokeWidth={isLimbOrPrime ? 1 : 0.6}
+                    strokeDasharray={Math.abs(lon) === 90 ? '3 3' : undefined}
+                  />
+                  <text x={x + 3} y={12} fill="rgba(231,229,228,0.75)" fontSize="8.5" fontFamily="monospace">
+                    {lon > 0 ? `+${lon}°E` : `${lon}°`}
+                  </text>
+                </g>
+              );
+            })}
 
-          {[-60, -30, 0, 30, 60].map((lat) => {
-            const y = ((90 - lat) / 180) * 360;
-            const isEquator = lat === 0;
-            return (
-              <g key={`lat-${lat}`}>
-                <line
-                  x1={0}
-                  y1={y}
-                  x2={720}
-                  y2={y}
-                  stroke={isEquator ? 'rgba(14,165,233,0.28)' : 'rgba(255,255,255,0.07)'}
-                  strokeWidth={isEquator ? 1 : 0.6}
-                />
-                <text x={6} y={y - 3} fill="rgba(148,163,184,0.65)" fontSize="8" fontFamily="monospace">
-                  {lat > 0 ? `+${lat}°N` : `${lat}°S`}
-                </text>
-              </g>
-            );
-          })}
+            {[-60, -30, 0, 30, 60].map((lat) => {
+              const y = ((90 - lat) / 180) * 360;
+              const isEquator = lat === 0;
+              return (
+                <g key={`lat-${lat}`}>
+                  <line
+                    x1={0}
+                    y1={y}
+                    x2={720}
+                    y2={y}
+                    stroke={isEquator ? 'rgba(255,79,0,0.42)' : 'rgba(255,255,255,0.12)'}
+                    strokeWidth={isEquator ? 1 : 0.6}
+                  />
+                  <text x={6} y={y - 3} fill="rgba(231,229,228,0.75)" fontSize="8.5" fontFamily="monospace">
+                    {lat > 0 ? `+${lat}°N` : `${lat}°S`}
+                  </text>
+                </g>
+              );
+            })}
 
-          <rect
-            x="0"
-            y={((90 - -80) / 180) * 360}
-            width="720"
-            height="20"
-            fill="rgba(245,158,11,0.12)"
-            stroke="rgba(245,158,11,0.35)"
-            strokeWidth="0.7"
-          />
-          <text x="360" y="354" textAnchor="middle" fill="#F59E0B" fontSize="8.5" fontFamily="monospace">
-            ARTEMIS III SOUTH POLAR TARGET ZONE (-80°S TO -90°S)
-          </text>
-
-          {filteredSites.map((site) => {
-            const { x, y } = projectToSvg(site.lat, site.lon);
-            const isSelected = site.id === selectedSite.id;
-            const color = getMarkerColor(site.site_type);
-
-            return (
-              <g
-                key={site.id}
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  onSelectSite(site);
-                }}
-                className="cursor-pointer"
-              >
-                {isSelected && (
-                  <>
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={11}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth={1.5}
-                      strokeDasharray="2 2"
-                    />
-                    <line x1={x} y1={0} x2={x} y2={360} stroke={color} strokeWidth={0.6} strokeOpacity={0.5} />
-                    <line x1={0} y1={y} x2={720} y2={y} stroke={color} strokeWidth={0.6} strokeOpacity={0.5} />
-                  </>
-                )}
-                <circle cx={x} cy={y} r={isSelected ? 5.5 : 3.8} fill={color} stroke="#080B11" strokeWidth={1.2} />
-              </g>
-            );
-          })}
-
-          <g transform={`translate(${Math.min(564, Math.max(12, selectedPt.x + 8))}, ${Math.min(335, Math.max(22, selectedPt.y - 10))})`}>
+            {/* Artemis III South Polar Target Zone (-80°S to -90°S) */}
             <rect
               x="0"
-              y="-12"
-              width="148"
-              height="24"
-              rx="3"
-              fill="#080B11"
-              fillOpacity="0.9"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="0.8"
+              y={((90 - -80) / 180) * 360}
+              width="720"
+              height="20"
+              fill="rgba(255,79,0,0.18)"
+              stroke="rgba(255,79,0,0.65)"
+              strokeWidth="0.9"
             />
-            <text x="6" y="-1" fill="#F8FAFC" fontSize="8.5" fontWeight="600">
-              {selectedSite.name.slice(0, 24)}
+            <text x="360" y="354" textAnchor="middle" fill="#FF4F00" fontSize="9" fontWeight="bold" fontFamily="monospace">
+              ARTEMIS III SOUTH POLAR TARGET ZONE (-80°S TO -90°S)
             </text>
-            <text x="6" y="8" fill="#0EA5E9" fontSize="7.5" fontFamily="monospace">
-              {selectedSite.lat.toFixed(2)}°, {selectedSite.lon.toFixed(2)}°
-            </text>
-          </g>
-        </svg>
-      </div>
 
-      <form
-        onSubmit={handleFormSubmit}
-        style={{ backgroundColor: '#080B11', border: '1px solid rgba(255,255,255,0.08)' }}
-        className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end p-3 rounded"
-      >
-        <div className="md:col-span-3">
-          <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
-            Custom Latitude [-90°, +90°]
-          </label>
-          <input
-            type="number"
-            step="0.0001"
-            min="-90"
-            max="90"
-            value={customLat}
-            onChange={(e) => setCustomLat(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded bg-[#0F141F] border border-white/[0.08] text-xs font-mono tabular-nums text-slate-100"
-          />
+            {filteredSites.map((site) => {
+              const { x, y } = projectToSvg(site.lat, site.lon);
+              const isSelected = site.id === selectedSite.id;
+              const color = getMarkerColor(site.site_type);
+
+              return (
+                <g
+                  key={site.id}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    onSelectSite(site);
+                  }}
+                  className="cursor-pointer"
+                >
+                  {isSelected && (
+                    <>
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r={12}
+                        fill="none"
+                        stroke="#FF4F00"
+                        strokeWidth={1.8}
+                        strokeDasharray="3 2"
+                      />
+                      <line x1={x} y1={0} x2={x} y2={360} stroke="#FF4F00" strokeWidth={0.8} strokeOpacity={0.65} />
+                      <line x1={0} y1={y} x2={720} y2={y} stroke="#FF4F00" strokeWidth={0.8} strokeOpacity={0.65} />
+                    </>
+                  )}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={isSelected ? 6 : 4.2}
+                    fill={isSelected ? '#FF4F00' : color}
+                    stroke="#FFFFFF"
+                    strokeWidth={1.3}
+                  />
+                </g>
+              );
+            })}
+
+            <g
+              transform={`translate(${Math.min(555, Math.max(12, selectedPt.x + 10))}, ${Math.min(
+                332,
+                Math.max(24, selectedPt.y - 10),
+              )})`}
+            >
+              <rect
+                x="0"
+                y="-13"
+                width="156"
+                height="26"
+                fill="#141413"
+                fillOpacity="0.92"
+                stroke="#FF4F00"
+                strokeWidth="1"
+              />
+              <text x="6" y="-2" fill="#FFFFFF" fontSize="8.5" fontWeight="700">
+                {selectedSite.name.slice(0, 23)}
+              </text>
+              <text x="6" y="8" fill="#FF4F00" fontSize="8" fontFamily="monospace">
+                {selectedSite.lat.toFixed(2)}°, {selectedSite.lon.toFixed(2)}°
+              </text>
+            </g>
+          </svg>
         </div>
 
-        <div className="md:col-span-3">
-          <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
-            Longitude (Auto-Wraps [-180°, 180°))
-          </label>
-          <input
-            type="number"
-            step="0.0001"
-            value={customLon}
-            onChange={(e) => setCustomLon(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded bg-[#0F141F] border border-white/[0.08] text-xs font-mono tabular-nums text-slate-100"
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">
-            Target Site Label (Auto-Increments)
-          </label>
-          <input
-            type="text"
-            maxLength={120}
-            value={customLabel}
-            onChange={(e) => setCustomLabel(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded bg-[#0F141F] border border-white/[0.08] text-xs text-slate-100"
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <button
-            type="submit"
-            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/40 hover:bg-[#0EA5E9]/25 text-xs font-semibold transition cursor-pointer"
-          >
-            <Crosshair className="w-3.5 h-3.5" />
-            Validate &amp; Point Telemetry
-          </button>
-        </div>
-
-        {coordError && (
-          <div className="md:col-span-12 text-[11px] text-[#EF4444] font-mono">
-            [COORDINATE ERROR]: {coordError}
-          </div>
-        )}
-
-        {coordResult && !coordError && (
-          <div className="md:col-span-12 flex flex-wrap items-center gap-4 pt-1 text-[11px] text-slate-300 font-mono tabular-nums border-t border-white/[0.06]">
-            <span className="text-[#10B981]">✓ NORMALIZED:</span>
-            <span>
-              LAT: <strong>{coordResult.latitude.toFixed(4)}°</strong> ({coordResult.latitude_hemisphere})
-            </span>
-            <span>
-              LON: <strong>{coordResult.longitude.toFixed(4)}°</strong> ({coordResult.longitude_hemisphere}
-              {coordResult.longitude_normalized ? ` wrapped from ${coordResult.original_longitude}°` : ''})
-            </span>
-            <span>
-              SIDE: <strong className="text-[#0EA5E9] uppercase">{coordResult.lunar_side}</strong>
-            </span>
-          </div>
-        )}
-      </form>
-
-      <div className="flex flex-col gap-2.5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {(
-              [
-                ['all', 'All Sites'],
-                ['artemis-candidate', 'Artemis III South Pole'],
-                ['crewed', 'Crewed (Apollo)'],
-                ['robotic', 'Robotic Landers'],
-                ['south-pole', 'High Southern Lat (≤ -65°)'],
-              ] as [FilterCategory, string][]
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setFilter(key)}
-                className={`px-2.5 py-1 rounded text-[11px] font-medium border transition cursor-pointer ${
-                  filter === key
-                    ? 'bg-[#0EA5E9]/15 text-[#0EA5E9] border-[#0EA5E9]/40'
-                    : 'bg-[#080B11] text-slate-400 border-white/[0.08] hover:text-slate-200'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+        {/* Custom Coordinate Input Form (`POST /coordinates/process`) */}
+        <form
+          onSubmit={handleFormSubmit}
+          className="nasa-subpanel p-2.5 grid grid-cols-2 sm:grid-cols-12 gap-2 items-end"
+        >
+          <div className="col-span-1 sm:col-span-3">
+            <label className="block text-[9px] font-mono font-semibold uppercase tracking-wider text-[#57534E] mb-0.5">
+              LAT [-90°..+90°]
+            </label>
+            <input
+              type="number"
+              step="0.0001"
+              min="-90"
+              max="90"
+              value={customLat}
+              onChange={(e) => setCustomLat(e.target.value)}
+              className="w-full px-2 py-1 bg-white border border-[#CFCBC2] text-xs font-mono tabular-nums text-[#141413] focus:outline-none focus:border-[#FF4F00]"
+            />
           </div>
 
-          <div className="relative w-full sm:w-56">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+          <div className="col-span-1 sm:col-span-3">
+            <label className="block text-[9px] font-mono font-semibold uppercase tracking-wider text-[#57534E] mb-0.5">
+              LON [-180°..+180°)
+            </label>
+            <input
+              type="number"
+              step="0.0001"
+              value={customLon}
+              onChange={(e) => setCustomLon(e.target.value)}
+              className="w-full px-2 py-1 bg-white border border-[#CFCBC2] text-xs font-mono tabular-nums text-[#141413] focus:outline-none focus:border-[#FF4F00]"
+            />
+          </div>
+
+          <div className="col-span-2 sm:col-span-3">
+            <label className="block text-[9px] font-mono font-semibold uppercase tracking-wider text-[#57534E] mb-0.5">
+              TARGET LABEL
+            </label>
             <input
               type="text"
-              placeholder="Search mission, crater, agency..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-2.5 py-1 rounded bg-[#080B11] border border-white/[0.08] text-xs text-slate-100 placeholder:text-slate-500"
+              maxLength={120}
+              value={customLabel}
+              onChange={(e) => setCustomLabel(e.target.value)}
+              className="w-full px-2 py-1 bg-white border border-[#CFCBC2] text-xs text-[#141413] focus:outline-none focus:border-[#FF4F00]"
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 max-h-56 overflow-y-auto pr-1">
-          {filteredSites.map((site) => {
-            const active = site.id === selectedSite.id;
-            return (
-              <button
-                key={site.id}
-                type="button"
-                onClick={() => onSelectSite(site)}
-                className={`text-left p-2.5 rounded border transition flex flex-col justify-between gap-1 cursor-pointer ${
-                  active
-                    ? 'bg-[#141B29] border-[#0EA5E9]/60'
-                    : 'bg-[#080B11] border-white/[0.08] hover:border-white/[0.18]'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-semibold text-slate-100 truncate">
-                    {site.name}
-                  </span>
-                  <span
-                    className="text-[9px] uppercase px-1.5 py-0.5 rounded font-mono"
-                    style={{
-                      color: getMarkerColor(site.site_type),
-                      backgroundColor: 'rgba(255,255,255,0.04)',
-                    }}
-                  >
-                    {site.site_type === 'artemis-candidate' ? 'ARTEMIS' : site.site_type}
-                  </span>
-                </div>
+          <div className="col-span-2 sm:col-span-3">
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center gap-1 px-2.5 py-1 bg-[#FF4F00] hover:bg-[#E04500] text-white text-[11px] font-mono font-bold uppercase tracking-wider transition cursor-pointer border border-[#141413]/20"
+            >
+              <Crosshair className="w-3 h-3" />
+              Point Target
+            </button>
+          </div>
 
-                <div className="text-[11px] text-slate-400 truncate">{site.region}</div>
+          {coordError && (
+            <div className="col-span-2 sm:col-span-12 text-[10px] text-[#DC2626] font-mono font-semibold">
+              [COORDINATE ERROR]: {coordError}
+            </div>
+          )}
 
-                <div className="flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-300 pt-1 border-t border-white/[0.05]">
-                  <span>
-                    {site.lat >= 0 ? `+${site.lat.toFixed(2)}°N` : `${site.lat.toFixed(2)}°S`}
-                  </span>
-                  <span>
-                    {site.lon >= 0 ? `+${site.lon.toFixed(2)}°E` : `${site.lon.toFixed(2)}°W`}
-                  </span>
-                  <span className="text-slate-400">{site.landing_date ?? 'CANDIDATE'}</span>
-                </div>
-              </button>
-            );
-          })}
+          {coordResult && !coordError && (
+            <div className="col-span-2 sm:col-span-12 flex flex-wrap items-center gap-3 pt-1 text-[10px] text-[#57534E] font-mono tabular-nums border-t border-[#CFCBC2]">
+              <span className="text-[#15803D] font-bold">✓ NORMALIZED:</span>
+              <span>
+                LAT <strong className="text-[#141413]">{coordResult.latitude.toFixed(4)}°</strong>
+              </span>
+              <span>
+                LON <strong className="text-[#141413]">{coordResult.longitude.toFixed(4)}°</strong>
+                {coordResult.longitude_normalized ? ` (wrapped from ${coordResult.original_longitude}°)` : ''}
+              </span>
+              <span>
+                SIDE <strong className="text-[#FF4F00] uppercase">{coordResult.lunar_side}</strong>
+              </span>
+            </div>
+          )}
+        </form>
+
+        {/* Category Filter Pills & Search + Scrollable Site List */}
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <div className="flex flex-wrap items-center gap-1">
+              {(
+                [
+                  ['all', 'ALL'],
+                  ['artemis-candidate', 'ARTEMIS III'],
+                  ['crewed', 'APOLLO'],
+                  ['robotic', 'ROBOTIC'],
+                  ['south-pole', '≤ -65°S'],
+                ] as [FilterCategory, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilter(key)}
+                  className={`px-2 py-0.5 text-[10px] font-mono font-semibold border transition cursor-pointer ${
+                    filter === key
+                      ? 'bg-[#141413] text-[#FF4F00] border-[#141413]'
+                      : 'bg-[#FAF9F5] text-[#57534E] border-[#CFCBC2] hover:text-[#141413]'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="relative flex-1 min-w-[140px]">
+              <Search className="w-3 h-3 text-[#78716C] absolute left-2 top-1.5" />
+              <input
+                type="text"
+                placeholder="Search site, crater, mission..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-6 pr-2 py-0.5 bg-white border border-[#CFCBC2] text-[11px] text-[#141413] placeholder:text-[#78716C] focus:outline-none focus:border-[#FF4F00]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[168px] overflow-y-auto pr-1">
+            {filteredSites.map((site) => {
+              const active = site.id === selectedSite.id;
+              const badgeColor = getMarkerColor(site.site_type);
+              return (
+                <button
+                  key={site.id}
+                  type="button"
+                  onClick={() => onSelectSite(site)}
+                  className={`text-left p-2 border transition flex flex-col justify-between gap-0.5 cursor-pointer ${
+                    active
+                      ? 'bg-[#FFF7ED] border-[#FF4F00] border-l-4'
+                      : 'bg-[#FAF9F5] border-[#CFCBC2] hover:bg-white hover:border-[#78716C]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-bold text-[#141413] truncate">
+                      {site.name}
+                    </span>
+                    <span
+                      className="text-[9px] uppercase px-1.5 py-0.2 font-mono font-bold border"
+                      style={{
+                        color: badgeColor,
+                        borderColor: badgeColor,
+                        backgroundColor: '#FFFFFF',
+                      }}
+                    >
+                      {site.site_type === 'artemis-candidate' ? 'ARTEMIS' : site.site_type}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[10px] font-mono tabular-nums text-[#57534E] pt-0.5">
+                    <span>
+                      {site.lat >= 0 ? `+${site.lat.toFixed(2)}°N` : `${site.lat.toFixed(2)}°S`},{' '}
+                      {site.lon >= 0 ? `+${site.lon.toFixed(2)}°E` : `${site.lon.toFixed(2)}°W`}
+                    </span>
+                    <span className="text-[#78716C] truncate max-w-[95px]">
+                      {site.landing_date ?? 'CANDIDATE'}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

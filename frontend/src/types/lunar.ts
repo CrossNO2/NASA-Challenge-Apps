@@ -51,6 +51,8 @@ export interface CrossCheckSource {
   source_url: string;
 }
 
+export type CrossCheckCatalogMap = Record<string, CrossCheckSource>;
+
 /**
  * Request payload for `POST /coordinates/process`
  */
@@ -81,7 +83,7 @@ export interface CoordinateProcessResponse {
 // 2. /backend FASTAPI SCHEMAS (backend/app/schemas/site.py, ephemeris.py, feasibility.py)
 // ============================================================================
 
-export type TerrainSource = 'lola' | 'none';
+export type TerrainSource = 'lola' | 'synthetic' | 'none';
 export type BodyName = 'sun' | 'earth';
 export type EphemerisSourceMode = 'skyfield' | 'horizons';
 export type GateName = 'power' | 'comms' | 'terrain' | 'resilience';

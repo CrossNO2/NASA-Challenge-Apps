@@ -41,7 +41,7 @@ class FeasibilityReport(BaseModel):
     verdict: Verdict
     reasons: list[str]
     source: str
-    terrain_source: Literal["lola", "none"]
+    terrain_source: Literal["lola", "synthetic", "none"]
 
 
 class OptimalWindow(BaseModel):
@@ -83,7 +83,7 @@ class OptimalWindowResponse(BaseModel):
     search_stop: datetime
     windows: list[OptimalWindow]
     source: str
-    terrain_source: Literal["lola", "none"]
+    terrain_source: Literal["lola", "synthetic", "none"]
 
 
 class CompareRequest(BaseModel):

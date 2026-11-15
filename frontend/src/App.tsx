@@ -1,6 +1,16 @@
 // File: frontend/src/App.tsx
 import { useEffect, useState } from 'react';
-import { Activity, BookOpen, Radio, ShieldCheck, Sliders, Sun } from 'lucide-react';
+import {
+  Activity,
+  BookOpen,
+  Compass,
+  Layers,
+  LayoutGrid,
+  Radio,
+  ShieldCheck,
+  Sliders,
+  Sun,
+} from 'lucide-react';
 import type {
   BodyPosition,
   CompareResponse,
@@ -23,13 +33,18 @@ import {
   FALLBACK_HANDOFF_SITES,
   mergeUnifiedSites,
 } from './services/apiClient';
+import { Lunar3DViewport } from './components/Lunar3DViewport';
 import { LunarMapPanel } from './components/LunarMapPanel';
 import { HorizonSkyViz } from './components/HorizonSkyViz';
 import { ElevationTimelineViz } from './components/ElevationTimelineViz';
 import { SiteComparisonMatrix } from './components/SiteComparisonMatrix';
 
+type WorkbenchTab = 'horizon' | 'feasibility' | 'comparison' | 'all';
+
 export function App() {
   const [uiMode, setUiMode] = useState<UIMode>('planner');
+  const [activeTab, setActiveTab] = useState<WorkbenchTab>('horizon');
+
   const [handoffRaw, setHandoffRaw] = useState<HandoffSite[]>(FALLBACK_HANDOFF_SITES);
   const [sites, setSites] = useState<UnifiedLunarSite[]>(() => mergeUnifiedSites());
   const [selectedSite, setSelectedSite] = useState<UnifiedLunarSite>(() => mergeUnifiedSites()[0]);
@@ -152,7 +167,7 @@ export function App() {
     };
   }, [selectedSite, startEpochIso, windowDays, requirements]);
 
-    // 3. Load multi-site comparison matrix (`POST /api/v1/compare`)
+  // 3. Load multi-site comparison matrix (`POST /api/v1/compare`)
   useEffect(() => {
     let active = true;
     (async () => {
@@ -258,35 +273,41 @@ export function App() {
   const sun = instant?.bodies.sun;
   const earth = instant?.bodies.earth;
 
+  const verdictBorderColor =
+    feasibility?.verdict === 'GO'
+      ? '#15803D'
+      : feasibility?.verdict === 'CAUTION'
+        ? '#B45309'
+        : '#DC2626';
+
   return (
-    <div style={{ backgroundColor: '#080B11', minHeight: '100vh' }} className="text-slate-100 flex flex-col">
-      {/* Top Aerospace Telemetry Header */}
-      <header
-        style={{ backgroundColor: '#0F141F', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-        className="px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-30"
-      >
+    <div className="nasa-chassis-grid min-h-screen text-[#141413] flex flex-col">
+      {/* 1. Carbon Matte Command Header (#141413) with NASA International Orange (#FF4F00) Callouts */}
+      <header className="bg-[#141413] text-[#F4F3EF] border-b-2 border-[#FF4F00] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-30">
         <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
+          <div className="px-2 py-1 bg-[#FF4F00] text-white font-mono text-xs font-bold tracking-wider">
+            [ITIS] MYTHOS
+          </div>
           <div>
-            <h1 className="text-sm font-bold tracking-wider uppercase text-slate-100 m-0">
-              LUNAR LANDING SITE NAVIGATOR // TELEMETRY CONSOLE
+            <h1 className="text-sm font-bold tracking-wider uppercase text-[#F4F3EF] m-0">
+              LUNAR LANDING SITE NAVIGATOR // JPL FLIGHT DECK v2.0
             </h1>
-            <p className="text-[11px] text-slate-400 font-mono tabular-nums m-0">
-              Catalog v{dataset.version} ({dataset.updated}) · {sites.length} Verified Sites
+            <p className="text-[10px] text-stone-400 font-mono tabular-nums m-0">
+              CATALOG v{dataset.version} ({dataset.updated}) · {sites.length} VERIFIED LANDING &amp; CANDIDATE SITES
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 text-xs">
           {/* Mission Planner vs Public Explorer Mode Switch */}
-          <div className="flex items-center bg-[#080B11] p-0.5 rounded border border-white/[0.08]">
+          <div className="flex items-center bg-[#262624] p-0.5 border border-stone-700">
             <button
               type="button"
               onClick={() => setUiMode('planner')}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono font-bold uppercase transition cursor-pointer ${
                 uiMode === 'planner'
-                  ? 'bg-[#0EA5E9]/20 text-[#0EA5E9]'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#FF4F00] text-white'
+                  : 'text-stone-400 hover:text-white'
               }`}
             >
               <Sliders className="w-3 h-3" />
@@ -295,10 +316,10 @@ export function App() {
             <button
               type="button"
               onClick={() => setUiMode('explorer')}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono font-bold uppercase transition cursor-pointer ${
                 uiMode === 'explorer'
-                  ? 'bg-[#10B981]/20 text-[#10B981]'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#FF4F00] text-white'
+                  : 'text-stone-400 hover:text-white'
               }`}
             >
               <BookOpen className="w-3 h-3" />
@@ -307,114 +328,125 @@ export function App() {
           </div>
 
           <span
-            className={`px-2.5 py-1 rounded border font-mono tabular-nums ${
-              backendOnline
-                ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30'
-                : 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30'
+            className={`px-2.5 py-1 border font-mono text-[11px] font-bold tabular-nums ${
+              backendOnline && validation
+                ? 'bg-[#15803D]/20 text-[#4ADE80] border-[#15803D]'
+                : 'bg-[#DC2626]/20 text-[#FCA5A5] border-[#DC2626]'
             }`}
           >
-            {backendOnline ? '● FASTAPI DE421 ONLINE' : '● HANDOFF FALLBACK MODE'}
+            {backendOnline && validation
+              ? '● JPL HORIZONS DE421/441 VALIDATED'
+              : '● LOCAL APPROXIMATE EPHEMERIS (BACKEND OFFLINE)'}
           </span>
 
-          <span className="px-2.5 py-1 rounded bg-[#080B11] border border-white/[0.08] text-slate-300 font-mono tabular-nums">
-            UTC: {missionTime.slice(0, 19)}Z
+          <span className="px-2.5 py-1 bg-[#262624] border border-stone-700 text-[#F4F3EF] font-mono text-[11px] tabular-nums">
+            UTC: <strong className="text-[#FF4F00]">{missionTime.slice(0, 19).replace('T', ' ')}Z</strong>
           </span>
         </div>
       </header>
 
-      <main className="flex-1 max-w-[1440px] w-full mx-auto p-4 flex flex-col gap-4">
-        {/* Top Instant Telemetry Strip */}
+      <main className="flex-1 max-w-[1440px] w-full mx-auto p-3 sm:p-4 flex flex-col gap-3.5">
+        {/* 2. 4-Card Industrial Telemetry Strip */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div style={{ backgroundColor: '#0F141F', border: '1px solid rgba(255,255,255,0.08)' }} className="rounded-lg p-3">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 flex items-center justify-between">
-              <span>ACTIVE TARGET SITE</span>
-              <Activity className="w-3.5 h-3.5 text-[#0EA5E9]" />
+          <div className="nasa-panel p-3 border-l-4 border-l-[#FF4F00]">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#57534E] flex items-center justify-between">
+              <span>01 // ACTIVE TARGET SITE</span>
+              <Activity className="w-3.5 h-3.5 text-[#FF4F00]" />
             </div>
-            <div className="text-sm font-bold text-slate-100 mt-1 truncate">
+            <div className="text-sm font-bold text-[#141413] mt-1 truncate">
               {selectedSite.name}
             </div>
-            <div className="text-xs font-mono tabular-nums text-[#0EA5E9] mt-0.5">
+            <div className="text-xs font-mono tabular-nums text-[#FF4F00] font-semibold mt-0.5">
               {selectedSite.lat.toFixed(4)}°N, {selectedSite.lon.toFixed(4)}°E · {selectedSite.lunar_side.toUpperCase()}
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#0F141F', border: '1px solid rgba(255,255,255,0.08)' }} className="rounded-lg p-3">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 flex items-center justify-between">
-              <span>SOLAR ELEVATION / AZIMUTH</span>
-              <Sun className="w-3.5 h-3.5 text-[#F59E0B]" />
+          <div className="nasa-panel p-3 border-l-4 border-l-[#D97706]">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#57534E] flex items-center justify-between">
+              <span>02 // SOLAR ELEVATION &amp; AZIMUTH</span>
+              <Sun className="w-3.5 h-3.5 text-[#D97706]" />
             </div>
-            <div className="text-base font-bold font-mono tabular-nums text-[#F59E0B] mt-1">
+            <div className="text-base font-bold font-mono tabular-nums text-[#D97706] mt-1">
               EL {sun ? `${sun.el_deg.toFixed(2)}°` : '--'} / AZ {sun ? `${sun.az_deg.toFixed(1)}°` : '--'}
             </div>
-            <div className="text-[11px] font-mono tabular-nums text-slate-400 mt-0.5">
-              Solar Disc Visible: {sun?.sun_fraction != null ? `${(sun.sun_fraction * 100).toFixed(0)}%` : '--'}
+            <div className="text-[11px] font-mono tabular-nums text-[#57534E] mt-0.5">
+              Solar Disc Visible: <strong>{sun?.sun_fraction != null ? `${(sun.sun_fraction * 100).toFixed(0)}%` : '--'}</strong>
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#0F141F', border: '1px solid rgba(255,255,255,0.08)' }} className="rounded-lg p-3">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 flex items-center justify-between">
-              <span>EARTH DTE COMMS VECTOR</span>
-              <Radio className="w-3.5 h-3.5 text-[#0EA5E9]" />
+          <div className="nasa-panel p-3 border-l-4 border-l-[#0284C7]">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#57534E] flex items-center justify-between">
+              <span>03 // EARTH DTE COMMS VECTOR</span>
+              <Radio className="w-3.5 h-3.5 text-[#0284C7]" />
             </div>
-            <div className="text-base font-bold font-mono tabular-nums text-[#0EA5E9] mt-1">
+            <div className="text-base font-bold font-mono tabular-nums text-[#0284C7] mt-1">
               EL {earth ? `${earth.el_deg.toFixed(2)}°` : '--'} / AZ {earth ? `${earth.az_deg.toFixed(1)}°` : '--'}
             </div>
-            <div className="text-[11px] font-mono tabular-nums text-slate-400 mt-0.5">
-              Direct-to-Earth LOS: {earth?.visible ? 'VISIBLE (LOCKED)' : 'OCCLUDED'}
+            <div className="text-[11px] font-mono tabular-nums text-[#57534E] mt-0.5">
+              Direct-to-Earth LOS: <strong>{earth?.visible ? 'VISIBLE (LOCKED)' : 'OCCLUDED'}</strong>
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#0F141F', border: '1px solid rgba(255,255,255,0.08)' }} className="rounded-lg p-3">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 flex items-center justify-between">
-              <span>4-GATE FEASIBILITY VERDICT</span>
-              <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+          <div
+            className="nasa-panel p-3 border-l-4"
+            style={{ borderLeftColor: verdictBorderColor }}
+          >
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#57534E] flex items-center justify-between">
+              <span>04 // 4-GATE FEASIBILITY VERDICT</span>
+              <ShieldCheck className="w-3.5 h-3.5" style={{ color: verdictBorderColor }} />
             </div>
             <div
               className="text-base font-bold font-mono tabular-nums mt-1"
-              style={{
-                color:
-                  feasibility?.verdict === 'GO'
-                    ? '#10B981'
-                    : feasibility?.verdict === 'CAUTION'
-                      ? '#F59E0B'
-                      : '#EF4444',
-              }}
+              style={{ color: verdictBorderColor }}
             >
               {feasibility ? `${feasibility.verdict} (${feasibility.score.toFixed(1)}/100)` : 'COMPUTING...'}
             </div>
-            <div className="text-[11px] text-slate-400 truncate mt-0.5">
-              Slope: <span className="font-mono tabular-nums">{selectedSite.slope_deg.toFixed(1)}°</span> · Elev:{' '}
-              <span className="font-mono tabular-nums">{selectedSite.elevation_m}m</span>
+            <div className="text-[11px] text-[#57534E] truncate mt-0.5">
+              Slope: <strong className="font-mono tabular-nums text-[#141413]">{selectedSite.slope_deg.toFixed(1)}°</strong> · Terrain:{' '}
+              <strong className="font-mono tabular-nums text-[#141413]">
+                {feasibility?.terrain_source === 'lola'
+                  ? 'LOLA DEM'
+                  : feasibility?.terrain_source === 'synthetic' || horizonProfile
+                    ? 'SYNTHETIC (ILLUSTRATIVE)'
+                    : 'FLAT 0°'}
+              </strong>
             </div>
           </div>
         </div>
 
-        {/* Module 2: 2D Lunar Map */}
-        <LunarMapPanel
-          sites={sites}
-          selectedSite={selectedSite}
-          onSelectSite={(site) => setSelectedSite(site)}
-          onCustomCoordinateSelect={(customSite) => {
-            setSites((prev) => [customSite, ...prev.filter((s) => s.id !== customSite.id)]);
-            setSelectedSite(customSite);
-            setComparedIds((prev) => {
-              if (prev.includes(customSite.id)) return prev;
-              return [customSite.id, ...prev].slice(0, 6);
-            });
-          }}
-        />
+        {/* 3. Primary Spatial Stage (2-Column Split on Desktop: 7 Cols 3D WebGL Engine + 5 Cols 2D Selenographic Map) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
+          <div className="lg:col-span-7 flex flex-col">
+            <Lunar3DViewport
+              sites={sites}
+              selectedSite={selectedSite}
+              instant={instant}
+              series={series}
+              horizonProfile={horizonProfile}
+              currentTimeIso={missionTime}
+              maxSlopeDeg={requirements.max_slope_deg}
+              onSelectSite={(site) => setSelectedSite(site)}
+            />
+          </div>
 
-        {/* Module 3: 360° Horizon Panorama & Polar Sky-Dome */}
-        <HorizonSkyViz
-          site={selectedSite}
-          instant={instant}
-          series={series}
-          horizonProfile={horizonProfile}
-          validation={validation}
-          currentTimeIso={missionTime}
-        />
+          <div className="lg:col-span-5 flex flex-col">
+            <LunarMapPanel
+              sites={sites}
+              selectedSite={selectedSite}
+              onSelectSite={(site) => setSelectedSite(site)}
+              onCustomCoordinateSelect={(customSite) => {
+                setSites((prev) => [customSite, ...prev.filter((s) => s.id !== customSite.id)]);
+                setSelectedSite(customSite);
+                setComparedIds((prev) => {
+                  if (prev.includes(customSite.id)) return prev;
+                  return [customSite.id, ...prev].slice(0, 6);
+                });
+              }}
+            />
+          </div>
+        </div>
 
-        {/* Module 4: Multi-Day Elevation Timeline & Scrubber */}
+        {/* 4. Always-Visible Mission Timeline & Temporal Scrubber */}
         <ElevationTimelineViz
           site={selectedSite}
           series={series}
@@ -428,29 +460,79 @@ export function App() {
           }}
         />
 
-        {/* Module 5: KPI Cards, 4-Gate Engine, Optimal Windows & Side-by-Side Comparison Matrix */}
-        <SiteComparisonMatrix
-          uiMode={uiMode}
-          sites={sites}
-          selectedSite={selectedSite}
-          instant={instant}
-          feasibility={feasibility}
-          optimalWindows={optimalWindows}
-          comparison={comparison}
-          comparedIds={comparedIds}
-          requirements={requirements}
-          onUpdateRequirements={setRequirements}
-          onToggleCompareSite={handleToggleCompareSite}
-          onSelectSiteById={(siteId) => {
-            const found = sites.find((s) => s.id === siteId);
-            if (found) setSelectedSite(found);
-          }}
-          onJumpToTime={(iso) => {
-            setStartEpochIso(iso);
-            setMissionTime(iso);
-          }}
-          onExportCatalog={handleExportCatalog}
-        />
+        {/* 5. Tabbed Analytical Workbench */}
+        <div className="flex flex-col gap-3">
+          <div className="bg-[#141413] p-1 border border-[#141413] flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-1">
+              {(
+                [
+                  ['horizon', 'TAB 01 // 360° HORIZON & POLAR SKY-PLOT', Compass],
+                  ['feasibility', 'TAB 02 // 4-GATE DECISION ENGINE & OPTIMAL WINDOWS', ShieldCheck],
+                  ['comparison', 'TAB 03 // MULTI-SITE COMPARISON MATRIX & EXPORT', Layers],
+                  ['all', 'TAB 04 // ALL-IN-ONE PRESENTATION VIEW', LayoutGrid],
+                ] as const
+              ).map(([tabKey, label, Icon]) => {
+                const isActive = activeTab === tabKey;
+                return (
+                  <button
+                    key={tabKey}
+                    type="button"
+                    onClick={() => setActiveTab(tabKey)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider transition cursor-pointer ${
+                      isActive
+                        ? 'bg-[#FF4F00] text-white'
+                        : 'bg-transparent text-stone-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <span className="px-2.5 text-[10px] font-mono text-stone-400 hidden xl:inline">
+              ANALYTICAL WORKBENCH // SELECT MODULE VIEW
+            </span>
+          </div>
+
+          {(activeTab === 'horizon' || activeTab === 'all') && (
+            <HorizonSkyViz
+              site={selectedSite}
+              instant={instant}
+              series={series}
+              horizonProfile={horizonProfile}
+              validation={validation}
+              currentTimeIso={missionTime}
+            />
+          )}
+
+          {activeTab !== 'horizon' && (
+            <SiteComparisonMatrix
+              uiMode={uiMode}
+              viewSection={activeTab === 'all' ? 'all' : activeTab}
+              sites={sites}
+              selectedSite={selectedSite}
+              instant={instant}
+              feasibility={feasibility}
+              optimalWindows={optimalWindows}
+              comparison={comparison}
+              comparedIds={comparedIds}
+              requirements={requirements}
+              onUpdateRequirements={setRequirements}
+              onToggleCompareSite={handleToggleCompareSite}
+              onSelectSiteById={(siteId) => {
+                const found = sites.find((s) => s.id === siteId);
+                if (found) setSelectedSite(found);
+              }}
+              onJumpToTime={(iso) => {
+                setStartEpochIso(iso);
+                setMissionTime(iso);
+              }}
+              onExportCatalog={handleExportCatalog}
+            />
+          )}
+        </div>
       </main>
     </div>
   );

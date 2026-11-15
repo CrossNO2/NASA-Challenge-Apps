@@ -16,7 +16,7 @@ from app.core.horizons_client import (
     fetch_horizons_altaz,
     lookup_golden_case,
 )
-from app.core.sites_repo import load_horizon_profile, load_sites
+from app.core.sites_repo import classify_terrain_source, load_horizon_profile, load_sites
 from app.core.terrain import clearance, h_terrain, is_visible, sun_visible_fraction
 from app.schemas.ephemeris import (
     BodyPosition,
@@ -139,7 +139,7 @@ def ephemeris_series(
     return EphemerisSeries(
         site=site,
         source=provenance,
-        terrain_source="lola" if prof else "none",
+        terrain_source=classify_terrain_source(prof),
         step_hours=step_hours,
         bodies=body_results,
     )
@@ -166,7 +166,7 @@ def ephemeris_instant(
     return InstantState(
         site=site,
         source=provenance,
-        terrain_source="lola" if prof else "none",
+        terrain_source=classify_terrain_source(prof),
         time=t,
         bodies=body_results,
     )

@@ -14,3 +14,4 @@ kernels/
 # Node
 node_modules/
 dist/
+*.tsbuildinfo

@@ -30,7 +30,7 @@ class SiteRef(BaseModel):
 class EphemerisSeries(BaseModel):
     site: SiteRef
     source: str = Field(..., description="Ephemeris provenance, e.g. 'skyfield_de421'")
-    terrain_source: Literal["lola", "none"]
+    terrain_source: Literal["lola", "synthetic", "none"]
     step_hours: float
     bodies: dict[str, list[BodyPosition]]
 
@@ -38,7 +38,7 @@ class EphemerisSeries(BaseModel):
 class InstantState(BaseModel):
     site: SiteRef
     source: str
-    terrain_source: Literal["lola", "none"]
+    terrain_source: Literal["lola", "synthetic", "none"]
     time: datetime
     bodies: dict[str, BodyPosition]
 

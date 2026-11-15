@@ -3,9 +3,21 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
+from typing import Literal, Optional
 
 from app.config import get_settings
 from app.schemas.site import HorizonProfile, LandingSite, LandingSiteDetail
+
+
+def classify_terrain_source(
+    horizon_profile: Optional[HorizonProfile],
+) -> Literal["lola", "synthetic", "none"]:
+    if horizon_profile is None:
+        return "none"
+    src_lower = horizon_profile.source.lower()
+    if "synthetic" in src_lower or "illustrative" in src_lower or "parametric" in src_lower:
+        return "synthetic"
+    return "lola"
 
 
 @lru_cache(maxsize=1)
@@ -33,6 +45,6 @@ def get_site_detail(site_id: str) -> LandingSiteDetail | None:
     prof = load_horizon_profile(site_id)
     return LandingSiteDetail(
         **site.model_dump(),
-        terrain_source="lola" if prof else "none",
+        terrain_source=classify_terrain_source(prof),
         horizon_profile=prof,
     )

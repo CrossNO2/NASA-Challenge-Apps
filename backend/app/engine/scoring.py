@@ -17,6 +17,7 @@ from app.core.illumination import (
     hours_until_next_sunrise,
     is_sunlit_mask,
 )
+from app.core.sites_repo import classify_terrain_source
 from app.core.terrain import clearance, h_terrain, is_visible, sun_visible_fraction
 from app.engine.gates import evaluate_gates
 from app.schemas.feasibility import FeasibilityReport, Gate, MissionRequirements, Verdict
@@ -33,7 +34,7 @@ class EvaluationGrid:
     sun_frac: NDArray[np.float64]
     earth_el_deg: NDArray[np.float64]
     earth_visible: NDArray[np.bool_]
-    terrain_source: Literal["lola", "none"]
+    terrain_source: Literal["lola", "synthetic", "none"]
 
 
 def as_utc(t: datetime) -> datetime:
@@ -75,7 +76,7 @@ def build_evaluation_grid(
         sun_frac=sun_frac,
         earth_el_deg=earth.el_deg,
         earth_visible=earth_vis,
-        terrain_source="lola" if horizon_profile else "none",
+        terrain_source=classify_terrain_source(horizon_profile),
     )
 
 

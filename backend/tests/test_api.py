@@ -26,15 +26,63 @@ def test_health() -> None:
 def test_sites() -> None:
     r = client.get("/api/v1/sites")
     assert r.status_code == 200
-    ids = {s["id"] for s in r.json()}
-    assert ids == {"shackleton-rim", "malapert-massif", "nobile-rim-1", "apollo-11"}
+    sites = r.json()
+    assert len(sites) >= 33
+    ids = {s["id"] for s in sites}
+    expected_subset = {
+        "shackleton-rim",
+        "malapert-massif",
+        "nobile-rim-1",
+        "nobile-rim-2",
+        "mons-mouton",
+        "haworth",
+        "de-gerlache-rim-2",
+        "slater-plain",
+        "apollo-11",
+        "chandrayaan-3",
+        "im-1-odysseus",
+        "slim",
+        "south-pole-reference",
+    }
+    assert expected_subset.issubset(ids)
 
 
 def test_site_detail_and_404() -> None:
     r = client.get("/api/v1/sites/apollo-11")
     assert r.status_code == 200
-    assert r.json()["terrain_source"] == "none"
+    assert r.json()["terrain_source"] == "synthetic"
+    assert len(r.json()["horizon_profile"]["elevations_deg"]) == 360
+
+    r_shack = client.get("/api/v1/sites/shackleton-rim")
+    assert r_shack.status_code == 200
+    assert r_shack.json()["terrain_source"] == "synthetic"
+    assert len(r_shack.json()["horizon_profile"]["elevations_deg"]) == 360
+
+    r_none = client.get("/api/v1/sites/slim")
+    assert r_none.status_code == 200
+    assert r_none.json()["terrain_source"] == "none"
+    assert r_none.json()["horizon_profile"] is None
+
     assert client.get("/api/v1/sites/nope").status_code == 404
+
+
+def test_coordinates_process() -> None:
+    r = client.post(
+        "/api/v1/coordinates/process",
+        json={"latitude": -86.0, "longitude": 357.3, "label": " Custom Ridge "},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["label"] == "Custom Ridge"
+    assert body["latitude"] == pytest.approx(-86.0)
+    assert body["longitude"] == pytest.approx(-2.7)
+    assert body["original_longitude"] == pytest.approx(357.3)
+    assert body["longitude_normalized"] is True
+    assert body["latitude_hemisphere"] == "south"
+    assert body["longitude_hemisphere"] == "west"
+    assert body["lunar_side"] == "near side"
+    assert isinstance(body["estimated_elevation_m"], float)
+    assert isinstance(body["estimated_slope_deg"], float)
 
 
 @needs_kernels
@@ -128,7 +176,7 @@ def test_feasibility_endpoint() -> None:
     assert data["verdict"] == "GO"
     assert len(data["gates"]) == 4
     assert {g["name"] for g in data["gates"]} == {"power", "comms", "terrain", "resilience"}
-    assert data["terrain_source"] == "none"
+    assert data["terrain_source"] == "synthetic"
 
     # Unknown site returns 404
     bad = client.post("/api/v1/feasibility", json={"site_id": "unknown", "landing_time": "2026-11-15T06:00:00Z"})

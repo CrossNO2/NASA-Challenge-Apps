@@ -8,7 +8,6 @@ import {
   Play,
   RotateCcw,
   Sun,
-  TrendingUp,
 } from 'lucide-react';
 import type {
   BodyPosition,
@@ -72,7 +71,6 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
   const [speedMultiplier, setSpeedMultiplier] = useState<1 | 4 | 12>(4);
   const [scrubProgress, setScrubProgress] = useState<number>(0);
 
-  // Refs prevent React StrictMode cascading state-updater freezes
   const progressRef = useRef<number>(0);
   const onSelectRef = useRef(onSelectTimeIso);
   onSelectRef.current = onSelectTimeIso;
@@ -94,7 +92,6 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
     }
   }, [series, totalPoints]);
 
-  // Helper to update both local playhead and parent state outside any state updater
   const applyProgress = (nextProgress: number) => {
     const clamped = Math.max(0, Math.min(1, nextProgress));
     progressRef.current = clamped;
@@ -129,7 +126,6 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
       progressRef.current = next;
       setScrubProgress(next);
 
-      // Sync parent state at ~30Hz outside updater so React never chokes
       if (now - lastParentSync >= 32) {
         lastParentSync = now;
         const floatIdx = next * (totalPoints - 1);
@@ -147,9 +143,9 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
     return () => cancelAnimationFrame(rafId);
   }, [isPlaying, speedMultiplier, totalPoints, sunArr, earthArr]);
 
-  // SVG Chart Geometry (width=720, height=210, elevation -45° to +90°)
-  const svgW = 720;
-  const svgH = 210;
+  // SVG Chart Geometry (width=960, height=145, elevation -45° to +90°)
+  const svgW = 960;
+  const svgH = 145;
   const elMin = -45;
   const elMax = 90;
 
@@ -237,21 +233,20 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
   const displayTimeIso = currentSample?.sun.time ?? currentTimeIso;
 
   return (
-    <section
-      style={{ backgroundColor: '#0F141F', border: '1px solid rgba(255,255,255,0.08)' }}
-      className="rounded-lg p-4 flex flex-col gap-4"
-    >
+    <section className="nasa-panel flex flex-col">
       {/* Header & Window Duration Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+      <div className="px-3.5 py-2 bg-[#EAE7E0] border-b border-[#CFCBC2] flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-[#10B981]" />
+          <span className="px-1.5 py-0.5 bg-[#141413] text-[#FF4F00] font-mono text-[10px] font-bold tracking-wider">
+            MOD-03
+          </span>
           <div>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200 m-0">
-              Multi-Day Sun &amp; Earth Elevation Timeline // Temporal Scrubber
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#141413] m-0">
+              TEMPORAL EPHEMERIS SCRUBBER &amp; MULTI-DAY ELEVATION CURVE
             </h2>
-            <p className="text-[11px] text-slate-400 font-mono tabular-nums m-0">
-              Window Illumination: <span className="text-[#F59E0B]">{windowStats.sunlitPct.toFixed(1)}%</span> · DTE Coverage:{' '}
-              <span className="text-[#0EA5E9]">{windowStats.dtePct.toFixed(1)}%</span> · Samples: {totalPoints}
+            <p className="text-[10px] text-[#57534E] font-mono tabular-nums m-0">
+              WINDOW ILLUMINATION: <strong className="text-[#D97706]">{windowStats.sunlitPct.toFixed(1)}%</strong> · DTE COVERAGE:{' '}
+              <strong className="text-[#0284C7]">{windowStats.dtePct.toFixed(1)}%</strong> · SAMPLES: {totalPoints}
             </p>
           </div>
         </div>
@@ -259,9 +254,9 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1">
             {[
-              [7, '7D Window'],
-              [14, '14D Window'],
-              [29.53, '29.5D Synodic'],
+              [7, '7D'],
+              [14, '14D'],
+              [29.53, '29.5D SYNODIC'],
             ].map(([days, label]) => {
               const active = Math.abs(windowDays - Number(days)) < 0.5;
               return (
@@ -272,10 +267,10 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
                     setIsPlaying(false);
                     onChangeWindowDays(Number(days));
                   }}
-                  className={`px-2.5 py-1 rounded text-[11px] font-mono tabular-nums border transition cursor-pointer ${
+                  className={`px-2 py-1 text-[10px] font-mono font-bold tabular-nums border transition cursor-pointer ${
                     active
-                      ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/40'
-                      : 'bg-[#080B11] text-slate-400 border-white/[0.08] hover:text-slate-200'
+                      ? 'bg-[#141413] text-[#FF4F00] border-[#141413]'
+                      : 'bg-[#F4F3EF] text-[#57534E] border-[#CFCBC2] hover:text-[#141413]'
                   }`}
                 >
                   {label}
@@ -284,8 +279,8 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
             })}
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#080B11] px-2.5 py-1 rounded border border-white/[0.08]">
-            <Calendar className="w-3.5 h-3.5 text-[#0EA5E9]" />
+          <div className="flex items-center gap-1.5 bg-white px-2 py-0.5 border border-[#CFCBC2]">
+            <Calendar className="w-3.5 h-3.5 text-[#FF4F00]" />
             <input
               type="datetime-local"
               value={datetimeLocalValue}
@@ -295,175 +290,169 @@ export const ElevationTimelineViz: React.FC<ElevationTimelineVizProps> = ({
                   onChangeStartEpoch(new Date(e.target.value + ':00Z').toISOString());
                 }
               }}
-              className="bg-transparent text-xs font-mono tabular-nums text-slate-100 focus:outline-none"
+              className="bg-transparent text-xs font-mono tabular-nums text-[#141413] focus:outline-none"
             />
           </div>
         </div>
       </div>
 
-      {/* Interactive Multi-Day Elevation Curve SVG */}
-      <div
-        style={{ backgroundColor: '#080B11', border: '1px solid rgba(255,255,255,0.08)' }}
-        className="relative w-full rounded overflow-hidden select-none"
-      >
-        <svg
-          viewBox={`0 0 ${svgW} ${svgH}`}
-          className="w-full h-auto block cursor-ew-resize"
-          onClick={handleSvgClickOrDrag}
-          onMouseMove={(e) => {
-            if (e.buttons === 1) handleSvgClickOrDrag(e);
-          }}
-        >
-          <rect
-            x={0}
-            y={zeroHorizonY}
-            width={svgW}
-            height={svgH - zeroHorizonY}
-            fill="rgba(15, 20, 31, 0.78)"
-          />
+      <div className="p-3 flex flex-col gap-2.5">
+        {/* Scrubber Transport Controls & Readout Bar */}
+        <div className="nasa-subpanel px-3 py-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-[280px]">
+            <button
+              type="button"
+              onClick={() => setIsPlaying((p) => !p)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono font-bold uppercase tracking-wider border transition cursor-pointer ${
+                isPlaying
+                  ? 'bg-[#141413] text-[#FF4F00] border-[#141413]'
+                  : 'bg-[#FF4F00] text-white border-[#FF4F00] hover:bg-[#E04500]'
+              }`}
+            >
+              {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+              {isPlaying ? 'Pause' : 'Play 3D + Charts'}
+            </button>
 
-          {sunAreaPath && <path d={sunAreaPath} fill="rgba(245, 158, 11, 0.1)" />}
+            <button
+              type="button"
+              onClick={() => {
+                setIsPlaying(false);
+                applyProgress(0);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-mono bg-white text-[#141413] border border-[#CFCBC2] hover:border-[#141413] transition cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset
+            </button>
 
-          {[-30, 0, 30, 60].map((el) => {
-            const { y } = projectPoint(0, el);
-            const isHorizon = el === 0;
-            return (
-              <g key={`tl-el-${el}`}>
-                <line
-                  x1={0}
-                  y1={y}
-                  x2={svgW}
-                  y2={y}
-                  stroke={isHorizon ? 'rgba(16, 185, 129, 0.5)' : 'rgba(255, 255, 255, 0.07)'}
-                  strokeWidth={isHorizon ? 1.2 : 0.6}
-                  strokeDasharray={isHorizon ? undefined : '3 3'}
-                />
-                <text
-                  x={6}
-                  y={y - 4}
-                  fill={isHorizon ? '#10B981' : 'rgba(148, 163, 184, 0.65)'}
-                  fontSize="8.5"
-                  fontFamily="monospace"
+            <div className="flex items-center gap-1">
+              <FastForward className="w-3.5 h-3.5 text-[#78716C] mr-0.5" />
+              {([1, 4, 12] as const).map((spd) => (
+                <button
+                  key={spd}
+                  type="button"
+                  onClick={() => setSpeedMultiplier(spd)}
+                  className={`px-2 py-0.5 text-[11px] font-mono font-bold tabular-nums border transition cursor-pointer ${
+                    speedMultiplier === spd
+                      ? 'bg-[#141413] text-[#FF4F00] border-[#141413]'
+                      : 'bg-white text-[#57534E] border-[#CFCBC2]'
+                  }`}
                 >
-                  {isHorizon ? '0° HORIZON (DAY/NIGHT THRESHOLD)' : `${el > 0 ? '+' : ''}${el}° EL`}
-                </text>
-              </g>
-            );
-          })}
+                  {spd}×
+                </button>
+              ))}
+            </div>
 
-          {earthPolyline && (
-            <polyline fill="none" stroke="#0EA5E9" strokeWidth={1.8} points={earthPolyline} />
-          )}
-
-          {sunPolyline && (
-            <polyline fill="none" stroke="#F59E0B" strokeWidth={2.2} points={sunPolyline} />
-          )}
-
-          <line
-            x1={playheadX}
-            y1={0}
-            x2={playheadX}
-            y2={svgH}
-            stroke="#F8FAFC"
-            strokeWidth={1.3}
-          />
-
-          {currentSample && (() => {
-            const sunY = projectPoint(0, currentSample.sun.el_deg).y;
-            const earthY = projectPoint(0, currentSample.earth.el_deg).y;
-            return (
-              <g>
-                <circle cx={playheadX} cy={earthY} r={4.5} fill="#0EA5E9" stroke="#080B11" strokeWidth={1.2} />
-                <circle cx={playheadX} cy={sunY} r={5} fill="#F59E0B" stroke="#080B11" strokeWidth={1.2} />
-              </g>
-            );
-          })()}
-        </svg>
-      </div>
-
-      {/* Scrubber Transport Controls & Readout Bar */}
-      <div
-        style={{ backgroundColor: '#080B11', border: '1px solid rgba(255,255,255,0.08)' }}
-        className="p-3 rounded flex flex-col gap-3"
-      >
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setIsPlaying((p) => !p)}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-semibold border transition cursor-pointer ${
-              isPlaying
-                ? 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/50'
-                : 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/50'
-            }`}
-          >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            {isPlaying ? 'Pause' : 'Start'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsPlaying(false);
-              applyProgress(0);
-            }}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs bg-[#0F141F] text-slate-300 border border-white/[0.08] hover:text-white transition cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Reset
-          </button>
-
-          <div className="flex items-center gap-1">
-            <FastForward className="w-3.5 h-3.5 text-slate-400 mr-1" />
-            {([1, 4, 12] as const).map((spd) => (
-              <button
-                key={spd}
-                type="button"
-                onClick={() => setSpeedMultiplier(spd)}
-                className={`px-2 py-1 rounded text-[11px] font-mono tabular-nums border transition cursor-pointer ${
-                  speedMultiplier === spd
-                    ? 'bg-[#0EA5E9]/20 text-[#0EA5E9] border-[#0EA5E9]/40'
-                    : 'bg-[#0F141F] text-slate-400 border-white/[0.08]'
-                }`}
-              >
-                {spd}×
-              </button>
-            ))}
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.001}
+              value={scrubProgress}
+              onChange={(e) => {
+                setIsPlaying(false);
+                applyProgress(Number(e.target.value));
+              }}
+              className="flex-1 accent-[#FF4F00] cursor-pointer"
+            />
           </div>
 
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.001}
-            value={scrubProgress}
-            onChange={(e) => {
-              setIsPlaying(false);
-              applyProgress(Number(e.target.value));
-            }}
-            className="flex-1 accent-[#0EA5E9] cursor-pointer"
-          />
+          <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono tabular-nums text-[#141413]">
+            <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 border border-[#CFCBC2]">
+              <Clock className="w-3 h-3 text-[#FF4F00]" />
+              UTC: <strong>{displayTimeIso.slice(0, 19).replace('T', ' ')}Z</strong>
+            </span>
+            <span className="inline-flex items-center gap-1 text-[#D97706] font-bold">
+              <Sun className="w-3.5 h-3.5" />
+              SUN: {currentSample ? `${currentSample.sun.el_deg.toFixed(2)}°` : '--'}
+            </span>
+            <span className="text-[#0284C7] font-bold">
+              EARTH: {currentSample ? `${currentSample.earth.el_deg.toFixed(2)}°` : '--'}
+            </span>
+            <span className="text-[#57534E] hidden sm:inline">
+              [{site.name.toUpperCase()}]
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono tabular-nums text-slate-300 pt-2 border-t border-white/[0.06]">
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-[#10B981]" />
-            SCRUB UTC: <strong className="text-slate-100">{displayTimeIso.slice(0, 19)}Z</strong>
-          </span>
+        {/* Interactive Multi-Day Elevation Curve SVG */}
+        <div className="relative w-full bg-[#FAF9F5] border border-[#CFCBC2] overflow-hidden select-none">
+          <svg
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            className="w-full h-auto block cursor-ew-resize"
+            onClick={handleSvgClickOrDrag}
+            onMouseMove={(e) => {
+              if (e.buttons === 1) handleSvgClickOrDrag(e);
+            }}
+          >
+            {/* Sub-Horizon Night Zone Shading */}
+            <rect
+              x={0}
+              y={zeroHorizonY}
+              width={svgW}
+              height={svgH - zeroHorizonY}
+              fill="rgba(20, 20, 19, 0.08)"
+            />
 
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="inline-flex items-center gap-1 text-[#F59E0B]">
-              <Sun className="w-3.5 h-3.5" />
-              SUN EL: <strong>{currentSample ? `${currentSample.sun.el_deg.toFixed(2)}°` : '--'}</strong> · AZ:{' '}
-              <strong>{currentSample ? `${currentSample.sun.az_deg.toFixed(1)}°` : '--'}</strong>
-            </span>
-            <span className="text-[#0EA5E9]">
-              EARTH EL: <strong>{currentSample ? `${currentSample.earth.el_deg.toFixed(2)}°` : '--'}</strong> · AZ:{' '}
-              <strong>{currentSample ? `${currentSample.earth.az_deg.toFixed(1)}°` : '--'}</strong>
-            </span>
-            <span className="text-slate-400">
-              SITE: {site.name.toUpperCase()}
-            </span>
-          </div>
+            {sunAreaPath && <path d={sunAreaPath} fill="rgba(217, 119, 6, 0.14)" />}
+
+            {[-30, 0, 30, 60].map((el) => {
+              const { y } = projectPoint(0, el);
+              const isHorizon = el === 0;
+              return (
+                <g key={`tl-el-${el}`}>
+                  <line
+                    x1={0}
+                    y1={y}
+                    x2={svgW}
+                    y2={y}
+                    stroke={isHorizon ? '#15803D' : '#CFCBC2'}
+                    strokeWidth={isHorizon ? 1.3 : 0.7}
+                    strokeDasharray={isHorizon ? undefined : '4 4'}
+                  />
+                  <text
+                    x={8}
+                    y={y - 4}
+                    fill={isHorizon ? '#15803D' : '#57534E'}
+                    fontSize="9"
+                    fontWeight={isHorizon ? 'bold' : 'normal'}
+                    fontFamily="monospace"
+                  >
+                    {isHorizon ? '0° HORIZON (DAY/NIGHT THRESHOLD)' : `${el > 0 ? '+' : ''}${el}° EL`}
+                  </text>
+                </g>
+              );
+            })}
+
+            {earthPolyline && (
+              <polyline fill="none" stroke="#0284C7" strokeWidth={1.8} points={earthPolyline} />
+            )}
+
+            {sunPolyline && (
+              <polyline fill="none" stroke="#D97706" strokeWidth={2.2} points={sunPolyline} />
+            )}
+
+            {/* Playhead Indicator in NASA International Orange */}
+            <line
+              x1={playheadX}
+              y1={0}
+              x2={playheadX}
+              y2={svgH}
+              stroke="#FF4F00"
+              strokeWidth={1.8}
+            />
+
+            {currentSample && (() => {
+              const sunY = projectPoint(0, currentSample.sun.el_deg).y;
+              const earthY = projectPoint(0, currentSample.earth.el_deg).y;
+              return (
+                <g>
+                  <circle cx={playheadX} cy={earthY} r={4.5} fill="#0284C7" stroke="#FFFFFF" strokeWidth={1.4} />
+                  <circle cx={playheadX} cy={sunY} r={5} fill="#D97706" stroke="#FFFFFF" strokeWidth={1.4} />
+                </g>
+              );
+            })()}
+          </svg>
         </div>
       </div>
     </section>

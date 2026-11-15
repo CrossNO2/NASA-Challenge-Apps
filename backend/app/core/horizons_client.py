@@ -249,8 +249,8 @@ def lookup_golden_case(
         if (
             c.get("body") == body
             and c.get("time_utc") == ts
-            and abs(float(c["lat"]) - lat) < 1e-4
-            and abs(float(c["lon"]) - lon) < 1e-4
+            and abs(float(c["lat"]) - lat) < 1e-2
+            and abs(float(c["lon"]) - lon) < 1e-2
         ):
             return AltAzResult(
                 az_deg=np.array([float(c["az_deg"])], dtype=np.float64),

@@ -22,8 +22,39 @@ class LandingSite(BaseModel):
     program: str
     horizon_profile_file: Optional[str] = None
     source: str
+    region: Optional[str] = None
+    site_type: Optional[str] = None
+    status: Optional[str] = None
+    country: Optional[str] = None
+    operator: Optional[str] = None
+    mission: Optional[str] = None
+    landing_date: Optional[str] = None
+    source_url: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class LandingSiteDetail(LandingSite):
-    terrain_source: Literal["lola", "none"] = "none"
+    terrain_source: Literal["lola", "synthetic", "none"] = "none"
     horizon_profile: Optional[HorizonProfile] = None
+
+
+class CoordinateProcessRequest(BaseModel):
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-360, le=360)
+    label: Optional[str] = None
+
+
+class CoordinateProcessResponse(BaseModel):
+    label: Optional[str] = None
+    latitude: float
+    longitude: float
+    original_longitude: float
+    longitude_normalized: bool
+    latitude_hemisphere: Literal["north", "south", "equator"]
+    longitude_hemisphere: Literal["east", "west", "prime meridian"]
+    lunar_side: Literal["near side", "far side", "limb"]
+    longitude_convention: str
+    coordinate_convention: str
+    estimated_elevation_m: float
+    estimated_slope_deg: float
+    next_step: str
